@@ -18,8 +18,8 @@ jobs:
         # Fetch all data from Google Sheets and save it to wishes.json
         curl -X GET "https://sheets.googleapis.com/v4/spreadsheets/${{ secrets.SPREADSHEET_ID }}/values/Wishes!A:D?key=${{ secrets.GOOGLE_API_KEY }}" -o wishes.json
 
-        # Filter out only the "Approved" records and trim any extra spaces
-        jq '[.values[] | select(.[3] | ascii_downcase | trim == "approved")]' wishes.json > wishes.json
+        # Filter only the records with "Approved" status (without trim)
+        jq '[.values[] | select(.[3] == "Approved")]' wishes.json > wishes.json
 
         # Output the filtered data for debugging
         echo "Filtered wishes:"
