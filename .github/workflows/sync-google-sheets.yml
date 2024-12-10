@@ -1,30 +1,64 @@
 name: Sync Google Sheets to JSON
-
 on:
   schedule:
-    - cron: '*/5 * * * *'  # each 5 mins
+    - cron: '*/5 * * * *'  # every 5 minutes
   workflow_dispatch:
   
 jobs:
   update-json:
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
-
-    - name: Fetch Google Sheets data
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+    
+    - name: Fetch and Process Google Sheets data
       run: |
-        curl -X GET "https://sheets.googleapis.com/v4/spreadsheets/${{ secrets.SPREADSHEET_ID }}/values/Wishes!A:D?key=${{ secrets.GOOGLE_API_KEY }}" -o wishes.json
+        # Fetch data from Google Sheets
+        curl -X GET "https://sheets.googleapis.com/v4/spreadsheets/${{ secrets.SPREADSHEET_ID }}/values/Wishes!A:D?key=${{ secrets.GOOGLE_API_KEY }}" | python3 -c '
+        import json
+        import sys
+        
+        # Read JSON from stdin
+        data = json.load(sys.stdin)
+        
+        # Skip header row and filter only approved wishes
+        filtered_wishes = [
+            {
+                "timestamp": row[0],
+                "name": row[1],
+                "wish": row[2]
+            }
+            for row in data["values"][1:]  # Skip header row
+            if len(row) >= 4 and row[3] == "Approved"  # Check if approved
+        ]
+        
+        # Create new JSON structure
+        output = {
+            "wishes": filtered_wishes
+        }
+        
+        # Write to wishes.json
+        with open("wishes.json", "w") as f:
+            json.dump(output, f, indent=2)
+        
+        # Check if wishes.json is empty and exit if it is
+        if not filtered_wishes:
+            sys.exit("No approved wishes found, not committing changes.")
+        ' || exit 1
       env:
         GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
-
+    
     - name: Debug wishes.json
       run: |
         echo "Contents of wishes.json:"
         cat wishes.json
-
+        
     - name: Commit and push changes
       run: |
         git config --global user.name "github-actions[bot]"
@@ -34,4 +68,3 @@ jobs:
         git push
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
