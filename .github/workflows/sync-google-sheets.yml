@@ -2,9 +2,9 @@ name: Sync Google Sheets to JSON
 
 on:
   schedule:
-    - cron: '0 * * * *' 
+    - cron: '*/5 * * * *'  # each 5 mins
   workflow_dispatch:
-
+  
 jobs:
   update-json:
     runs-on: ubuntu-latest
