@@ -1,0 +1,48 @@
+{
+  "range": "Wishes!A1:D998",
+  "majorDimension": "ROWS",
+  "values": [
+    [
+      "timestamp",
+      "name",
+      "wish",
+      "approved"
+    ],
+    [
+      "2024-12-10 03:32:37 PT",
+      "Alex",
+      "I want happiness",
+      "Approved"
+    ],
+    [
+      "2024-12-10 04:07:06 PT",
+      "Tommy",
+      "I just want a new hoodie this year, something comfy!",
+      "Approved"
+    ],
+    [
+      "2024-12-10 04:07:22 PT",
+      "Sarah",
+      "A cozy blanket for movie nights would be perfect",
+      "Pending"
+    ],
+    [
+      "2024-12-10 04:07:33 PT",
+      "Jake",
+      "I’m hoping for a little more free time to relax!",
+      "Approved"
+    ],
+    [
+      "2024-12-10 04:07:45 PT",
+      "Emily",
+      "A gift card for my favorite coffee shop would be awesome!",
+      "Approved"
+    ],
+    [
+      "2024-12-10 04:07:59 PT",
+      "Chris",
+      "I’d love some good books to read this winter.",
+      "Approved"
+    ]
+  ]
+}
