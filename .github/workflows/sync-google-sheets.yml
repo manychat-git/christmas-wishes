@@ -42,9 +42,9 @@ jobs:
             "wishes": filtered_wishes
         }
         
-        # Write to wishes.json
+        # Write to wishes.json with ensure_ascii=False to avoid unicode escaping
         with open("wishes.json", "w") as f:
-            json.dump(output, f, indent=2)
+            json.dump(output, f, indent=2, ensure_ascii=False)
         
         # Check if wishes.json is empty and exit if it is
         if not filtered_wishes:
