@@ -3,7 +3,7 @@ on:
   schedule:
     - cron: '0,30 * * * *'  # every 30 minutes
   workflow_dispatch:
-  
+
 jobs:
   update-json:
     runs-on: ubuntu-latest
@@ -18,7 +18,6 @@ jobs:
     
     - name: Fetch and Process Google Sheets data
       run: |
-        # Fetch data from Google Sheets
         curl -X GET "https://sheets.googleapis.com/v4/spreadsheets/${{ secrets.SPREADSHEET_ID }}/values/Wishes!A:D?key=${{ secrets.GOOGLE_API_KEY }}" | python3 -c '
         import json
         import sys
@@ -42,24 +41,32 @@ jobs:
             "wishes": filtered_wishes
         }
         
-        # Write to wishes.json with ensure_ascii=False to avoid unicode escaping
+        # Write to wishes.json
         with open("wishes.json", "w") as f:
             json.dump(output, f, indent=2, ensure_ascii=False)
         
-        # Check if wishes.json is empty and exit if it is
+        # Check if no updates are needed
         if not filtered_wishes:
-            sys.exit("No approved wishes found, not committing changes.")
-        ' || exit 1
+            print("No approved wishes found. Skipping commit.")
+            sys.exit(0)  # Exit with success code
+        '
       env:
         GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
     
-    - name: Debug wishes.json
+    - name: Check if file has changes
+      id: check_changes
       run: |
-        echo "Contents of wishes.json:"
-        cat wishes.json
-        
+        if git diff --quiet wishes.json; then
+          echo "No changes detected."
+          echo "skip_commit=true" >> $GITHUB_ENV
+        else
+          echo "Changes detected."
+          echo "skip_commit=false" >> $GITHUB_ENV
+        fi
+    
     - name: Commit and push changes
+      if: env.skip_commit == 'false'
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
