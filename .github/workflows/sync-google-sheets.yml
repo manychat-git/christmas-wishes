@@ -15,10 +15,15 @@ jobs:
 
     - name: Fetch Google Sheets data
       run: |
-        curl -X GET "https://sheets.googleapis.com/v4/spreadsheets/${{ secrets.SPREADSHEET_ID }}/values/Wishes!A:D?key=${{ secrets.GITHUB_GOOGLE_API_KEY }}" -o wishes.json
+        curl -X GET "https://sheets.googleapis.com/v4/spreadsheets/${{ secrets.SPREADSHEET_ID }}/values/Wishes!A:D?key=${{ secrets.GOOGLE_API_KEY }}" -o wishes.json
       env:
-        GITHUB_GOOGLE_API_KEY: ${{ secrets.GITHUB_GOOGLE_API_KEY }}
+        GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+
+    - name: Debug wishes.json
+      run: |
+        echo "Contents of wishes.json:"
+        cat wishes.json
 
     - name: Commit and push changes
       run: |
